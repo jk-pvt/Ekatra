@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadPulse — Free Readability & Complexity Analyzer</title>
+  <meta name="description" content="Instant client-side readability analyzer. Paste your copy to get Flesch-Kincaid grade, reading ease, sentence metrics, and your top 5 hardest sentences highlighted in real time.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12h5l2-8 5 16 3-8h5"/>
+        </svg>
+      </div>
+      <div>
+        <h1>ReadPulse</h1>
+        <span class="badge-tag">100% Client-Side • Private & Fast</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="themeToggleBtn" class="btn-ghost" title="Toggle Theme">
+        <svg id="themeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <span id="themeLabel">Dark Mode</span>
+      </button>
+      <button id="sampleBtn" class="btn-ghost" title="Load sample article">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Try Sample
+      </button>
+      <button id="clearBtn" class="btn-ghost" title="Clear text">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Clear
+      </button>
+      <button id="copyBtn" class="btn-ghost" title="Copy clean text">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy
+      </button>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Top Score Banner / Quick Overview -->
+    <section class="score-banner" id="scoreBanner">
+      <div class="score-primary">
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 120 120">
+            <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+            <circle class="gauge-bar" id="gaugeBar" cx="60" cy="60" r="50"></circle>
+          </svg>
+          <div class="gauge-content">
+            <span class="gauge-val" id="readingEaseVal">--</span>
+            <span class="gauge-label">Reading Ease</span>
+          </div>
+        </div>
+        <div class="score-meta">
+          <div class="status-pill" id="gradePill">Waiting for input</div>
+          <h2 class="score-heading" id="scoreVerdict">Paste your prose to calculate readability</h2>
+          <p class="score-desc" id="scoreAdvice">We calculate Flesch-Kincaid Grade Level, Dale-Chall complexity, and pinpoint your 5 most convoluted sentences instantly.</p>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-title">Grade Level</span>
+          <span class="metric-num" id="gradeLevelVal">--</span>
+          <span class="metric-sub" id="gradeLevelDesc">Flesch-Kincaid</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Target Audience</span>
+          <span class="metric-num text-sm" id="targetAudienceVal">--</span>
+          <span class="metric-sub" id="targetLevelSub">Standard: 7th–9th grade</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Reading Time</span>
+          <span class="metric-num" id="readingTimeVal">0m 0s</span>
+          <span class="metric-sub" id="wordsPerMinSub">~225 wpm</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Hard Sentences</span>
+          <span class="metric-num highlight-stat" id="hardSentencesCount">0</span>
+          <span class="metric-sub" id="hardSentencesPercent">0% of total</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Workspace: Dual Split Pane -->
+    <section class="workspace-grid">
+      <!-- Left Column: Interactive Input & Highlight Viewer -->
+      <div class="panel text-panel">
+        <div class="panel-header">
+          <div class="tabs">
+            <button class="tab-btn active" id="tabInput" data-view="edit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Editor
+            </button>
+            <button class="tab-btn" id="tabHighlight" data-view="highlight">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Hard Sentences Heatmap
+              <span class="pill-count" id="heatmapBadge">5</span>
+            </button>
+          </div>
+          <div class="quick-stats">
+            <span id="wordCount">0 words</span>
+            <span class="dot-divider">•</span>
+            <span id="sentenceCount">0 sentences</span>
+            <span class="dot-divider">•</span>
+            <span id="charCount">0 characters</span>
+          </div>
+        </div>
+
+        <div class="editor-container">
+          <!-- Textarea for direct editing -->
+          <textarea 
+            id="textInput" 
+            placeholder="Paste or write your essay, article, documentation, or marketing copy here... ReadPulse will automatically assess its readability in real-time." 
+            spellcheck="true"
+            autofocus
+          ></textarea>
+
+          <!-- Rendered Highlight View -->
+          <div id="highlightViewer" class="highlight-viewer hidden" aria-live="polite"></div>
+        </div>
+
+        <!-- Legend Footer -->
+        <div class="panel-footer">
+          <div class="legend-row">
+            <span class="legend-title">Sentence Legend:</span>
+            <span class="legend-item"><span class="legend-chip chip-rank-1"></span> #1 Hardest (Extreme)</span>
+            <span class="legend-item"><span class="legend-chip chip-rank-2"></span> #2 Very Hard</span>
+            <span class="legend-item"><span class="legend-chip chip-rank-3-5"></span> #3 – #5 Challenging</span>
+            <span class="legend-item"><span class="legend-chip chip-normal"></span> Clear & Flowing</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: The 5 Hardest Sentences Breakdown & Suggestions -->
+      <div class="panel breakdown-panel">
+        <div class="panel-header">
+          <div class="panel-title-wrap">
+            <h3 class="panel-title">Top 5 Hardest Sentences</h3>
+            <span class="panel-subtitle">Ranked by syllable density & word count</span>
+          </div>
+          <button id="scrollToTopHardBtn" class="btn-mini" title="Highlight first hardest sentence">
+            Jump to #1
+          </button>
+        </div>
+
+        <div class="hard-sentences-list" id="hardSentencesList">
+          <!-- Populated dynamically via JS -->
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </div>
+            <h4>No text entered yet</h4>
+            <p>Paste or type your content to discover the five most complex sentences that are weighing down your readability score.</p>
+          </div>
+        </div>
+
+        <!-- Extra Diagnostics / Breakdown -->
+        <div class="diagnostics-section">
+          <h4 class="diagnostics-heading">Structural Diagnostics</h4>
+          <div class="diag-row">
+            <span class="diag-label">Avg. Words Per Sentence</span>
+            <span class="diag-val" id="diagAvgWords">--</span>
+          </div>
+          <div class="diag-row">
+            <span class="diag-label">Avg. Syllables Per Word</span>
+            <span class="diag-val" id="diagAvgSyllables">--</span>
+          </div>
+          <div class="diag-row">
+            <span class="diag-label">Complex Words (>2 Syllables)</span>
+            <span class="diag-val" id="diagComplexWords">--</span>
+          </div>
+          <div class="diag-row">
+            <span class="diag-label">Long Words (>6 Letters)</span>
+            <span class="diag-val" id="diagLongWords">--</span>
+          </div>
+          <div class="diag-row">
+            <span class="diag-label">Gunning Fog Index</span>
+            <span class="diag-val" id="diagGunningFog">--</span>
+          </div>
+          <div class="diag-row">
+            <span class="diag-label">Coleman-Liau Index</span>
+            <span class="diag-val" id="diagColeman">--</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>ReadPulse is completely client-side. Zero server calls, zero data retention. Your words stay entirely on your device.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
